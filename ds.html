@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Cache-Control" content="no-Cache">
+        <meta http-equiv="Expires" content="-1">
+        <meta charset="UTF-8">
+        <title>MtF-BR: Separatist Might</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Interactive Geonosis Territory Battle Map SWGoH">
+        <meta name="keywords" content="swgoh, star wars, geonosis, territory, battle, map, tactics, interactive">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="css/main_ds.css">
+        <link rel="icon" type="image" href="media/icon/guildicon.svg">
+    </head>
+	<body onload="svgMap()">
+        <div class="wrapper">
+            <div class="container-fluid">
+                <div class="row justify-content-center h-100 text-center">
+                <div id="app" class="map">
+                    <div class="logo">
+                        <img class="img_logo" src="media/page/hlogo.png">
+                    </div>
+                    <div class="phase">
+                        <img id="battle_img" class="img_battle" src="media/page/ds.png">
+                        <img id="phase_img" class="img_phase" src="media/page/ds_p0.png">
+                    </div>
+                    <div class="phase_selector">
+                        <form class="form_battle">
+                            <select name="battle" id="battle" onchange="window.location.href = value+'.html'">
+                                <option value="ds">Separatist Might</option>
+                                <option value="ls">Republic Offensive</option>
+                            </select>
+                        </form>
+
+                        <form class="form_phase">
+                            <select name="phase" id="phase"  onchange="selectPhase()">
+                                <option value="p0">-- Select Phase --</option>
+                                <option value="p1">Attack Phase 1</option>
+                                <option value="p2">Attack Phase 2</option>
+                                <option value="p3">Attack Phase 3</option>
+                                <option value="p4">Attack Phase 4</option>
+                            </select>
+                        </form>
+                    </div>
+                    <div>
+                        <svg viewBox="0 0 1000 667">
+                            <path id="top_1" class="part_"></path>
+                            <path id="mid_1" class="part_"></path>
+                            <path id="bot_1" class="part_"></path>
+                            <path id="top_2" class="part_"></path>
+                            <path id="mid_2" class="part_"></path>
+                            <path id="bot_2" class="part_"></path>
+                            <path id="top_3" class="part_"></path>
+                            <path id="mid_3" class="part_"></path>
+                            <path id="bot_3" class="part_"></path>
+                            <path id="top_4" class="part_"></path>
+                            <path id="mid_4" class="part_"></path>
+                            <path id="bot_4" class="part_"></path>
+                        </svg>
+                    </div>
+                    <mission></mission>
+                </div>
+                </div>
+            </div>
+        </div>
+<!--Templates for Vue-->
+        <template id="mission">
+            <div>
+                <img class="mission" v-for="mission in missions"
+                     v-bind:key="mission.id" v-bind:class="mission.id"
+                     v-bind:src="'media/svg/mission_' +  mission.type + '.svg'"
+                     @mouseover="isMobile ? null : selectedMission = mission; seen = true" @mouseleave="seen = false">
+                <img class="mark" v-for="mission in missions"
+                     v-bind:id="mission.id" v-bind:key="mission.id" v-bind:class="mission.id"
+                     v-bind:src="'media/svg/mission_' +  mission.instruction + '.svg'"
+                     @mouseover="isMobile ? null : selectedMission = mission; seen = true" @mouseleave="seen = false">
+                <!--v-click-outside="hide"-->
+                <div v-if="seen" class="description" v-bind:class="'desc_' + selectedMission.position">
+
+                    <div v-if="selectedMission.missionAlert">
+                        <p class="text_title">! ! ! Phase Alert ! ! !</p>
+                        <div class="text_center">
+                            <spam v-for="item in selectedMission.missionAlert">{{alertVector[item]}}<br></spam>
+                        </div>
+                    </div>
+
+                    <div v-if="selectedMission.preferredSquads">
+                        <p class="text_title">Preferred Teams</p>
+                        <div v-if="squads[item].capital"
+                             v-for="item in selectedMission.preferredSquads">
+                            <p class="text_subtitle">{{item}}</p>
+                            <div>
+                                <img class='img_capital'
+                                     v-bind:src="'media/toons/' + squads[item].capital + '.png'">
+                                <img class="img_leader" v-for="pic in squads[item].toons"
+                                     v-if="pic" v-bind:src="'media/toons/' + pic + '.png'">
+                                <img class="img_reinforcement" v-for="pic in squads[item].reinforcement"
+                                     v-if="pic" v-bind:src="'media/toons/' + pic + '.png'">
+                            </div>
+                        </div>
+                        <div v-if="squads[item].leader"
+                             v-for="item in selectedMission.preferredSquads">
+                            <p class="text_subtitle">{{item}}</p>
+                            <div>
+                                <img class="img_leader"
+                                     v-bind:src="'media/toons/' + squads[item].leader + '.png'">
+                                <img class="img_toon"  v-for="pic in squads[item].toons"
+                                     v-bind:src="'media/toons/' + pic + '.png'">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="selectedMission.requirements">
+                        <p class="text_title">Mission Requirements</p>
+                        <img v-if="selectedMission.requirementsImage" class="img_requerement"
+                             v-for="pic in selectedMission.requirementsImage"
+                             v-bind:src="'media/toons/' + pic + '.png'">
+                        <span class="text_center"
+                              v-for="item in selectedMission.requirements">&nbsp;&nbsp;{{item}}&nbsp;&nbsp;</span>
+                    </div>
+
+                    <div v-if="selectedMission.territoryBonus">
+                        <div class="platoon" v-for="item in selectedMission.territoryBonus">
+                            <p class="text_title">{{selectedMission.name}}</p>
+                            <p class="text_subtitle">Platton Bonnus</p>
+                            <div v-if="territorys[item].conditions"
+                                 v-for="cond in territorys[item].conditions">{{cond}}
+                            </div>
+                            <ul>
+                                <li class="text_corpus_small"
+                                    v-for="abi in territorys[item].abilities">{{abi}}</li>
+                            </ul>
+                            <div class="text_center" v-if="territorys[item].skills">Enable Abilities
+                                <ul>
+                                    <li class="text_corpus_small"
+                                        v-for="sk in territorys[item].skills">{{sk}}</li>
+                                </ul>
+                            </div>
+                            <img v-bind:src="'media/platoons/' + selectedMission.platoons + '.png'">
+                            <table>
+                                <tr>
+                                    <td v-for="item in selectedMission.platoonSquadron_1">
+                                        <div>{{squadron[item].name}}<br>
+                                            <img v-for="pic in squadron[item].toons[0]"
+                                                 v-bind:src="'media/toons/' + pic + '.png'"><br>
+                                            <img v-for="pic in squadron[item].toons[1]"
+                                                 v-bind:src="'media/toons/' + pic + '.png'"><br>
+                                            <img v-for="pic in squadron[item].toons[2]"
+                                                 v-bind:src="'media/toons/' + pic + '.png'"><br>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td v-for="item in selectedMission.platoonSquadron_2">
+                                        <div>{{squadron[item].name}}<br>
+                                            <img v-for="pic in squadron[item].toons[0]"
+                                                 v-bind:src="'media/toons/' + pic + '.png'"><br>
+                                            <img v-for="pic in squadron[item].toons[1]"
+                                                 v-bind:src="'media/toons/' + pic + '.png'"><br>
+                                            <img v-for="pic in squadron[item].toons[2]"
+                                                 v-bind:src="'media/toons/' + pic + '.png'"><br>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div v-if="selectedMission.rewards">
+                        <p class="text_title">Rewards</p>
+                        <img v-if="selectedMission.rewardsImage" class="img_reward"
+                             v-for="pic in selectedMission.rewardsImage"
+                             v-bind:src="'media/png/' + pic + '.png'">
+                        <span class="text_center_small"
+                              v-for="item in selectedMission.rewards">&nbsp;&nbsp;{{item}}&nbsp;&nbsp;&nbsp;</span>
+                    </div>
+
+                    <div class='deploy'
+                         v-if="selectedMission.type === 'deploy'|
+                    selectedMission.type === 'squad_deploy'">
+                        <div class="text_subtitle">
+                            <p>{{selectedMission.name}}</p>
+                        </div>
+                        <div class="text_tab_small">
+                            <p><img src="media/png/1_star.png">&nbsp;&nbsp;{{selectedMission.stars[0]}}</p>
+                            <p><img src="media/png/2_star.png">&nbsp;&nbsp;{{selectedMission.stars[1]}}</p>
+                            <p><img src="media/png/3_star.png">&nbsp;&nbsp;{{selectedMission.stars[2]}}</p>
+                        </div>
+                    </div>
+
+                    <div class='active_bonnus' v-if="selectedMission.description">
+                        <div class="text_subtitle">
+                            <p>{{selectedMission.name}}</p>
+                        </div>
+                        <div class="text_tab_small">
+                            <p>{{selectedMission.description}}</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </template>
+		<script src="js/vue.min.js"></script>
+        <script src="js/main.js"></script>
+        <script src="js/main_ds.js"></script>
+	</body>
+</html>

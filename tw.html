@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Cache-Control" content="no-Cache">
+		<meta http-equiv="Expires" content="-1">
+		<meta charset="UTF-8">
+		<title>MtF-BR: Territory Battle</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="TW">
+		<meta name="keywords" content="swgoh">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		<link rel="stylesheet" href="css/main.css">
+		<link rel="stylesheet" href="css/main_tw.css">
+		<link rel="icon" type="image" href="media/icon/guildicon.svg">
+	</head>
+	<body onload="cacheClear()">
+		<div class="wrapper_tw">
+			<div class="container-fluid">
+				<div class="row justify-content-center text-center">
+				<div id="app" class="tw">
+					<div class="logo">
+						<img class="img_logo" src="media/page/hlogo.png">
+					</div>
+					<div>
+					<svg viewBox="0 0 1000 667">
+						<path id="top_1" class="part_"></path>
+						<path id="mid_1" class="part_"></path>
+						<path id="bot_1" class="part_"></path>
+						<path id="top_2" class="part_"></path>
+						<path id="mid_2" class="part_"></path>
+						<path id="bot_2" class="part_"></path>
+						<path id="top_3" class="part_"></path>
+						<path id="mid_3" class="part_"></path>
+						<path id="bot_3" class="part_"></path>
+						<path id="top_4" class="part_"></path>
+						<path id="mid_4" class="part_"></path>
+						<path id="bot_4" class="part_"></path>
+					</svg>
+					</div>
+					<mission></mission>
+				</div>
+				</div>
+			</div>
+		</div>
+<!--Templates for Vue-->
+		<template id="mission">
+			<div>
+				<img class="mission" v-for="mission in missions"
+				v-bind:key="mission.id" v-bind:class="mission.id"
+				v-bind:src="'media/svg/mission_' +  mission.type + '.svg'"
+				@mouseover="isMobile ? null : selectedMission = mission; seen = true" @mouseleave="seen = false">
+				<!--v-click-outside="hide"-->
+				<div v-if="seen" class="description" v-bind:class="'desc_' + selectedMission.position">
+
+					<div v-if="selectedMission.missionAlert">
+						<p class="text_title">! ! ! Phase Alert ! ! !</p>
+						<div class="text_center">
+							<spam v-for="item in selectedMission.missionAlert">{{item}}<br></spam>
+						</div>
+					</div>
+
+					<div v-if="selectedMission.requirements">
+						<p class="text_title">Preferred Teams</p>
+						<img v-if="selectedMission.requirementsImage" class="img_requerement"
+							 v-for="pic in selectedMission.requirementsImage"
+							 v-bind:src="'media/toons/' + pic + '.png'">
+						<span class="text_center"
+							  v-for="item in selectedMission.requirements">&nbsp;&nbsp;{{item}}&nbsp;&nbsp;</span>
+					</div>
+
+					<div v-if="selectedMission.preferredSquads">
+						<div v-if="squads[item].capital"
+							 v-for="item in selectedMission.preferredSquads">
+							<p class="text_subtitle">{{item}}</p>
+							<div>
+								<img class='img_capital'
+									 v-bind:src="'media/toons/' + squads[item].capital + '.png'">
+								<img class="img_leader" v-for="pic in squads[item].toons"
+									 v-if="pic" v-bind:src="'media/toons/' + pic + '.png'">
+								<img class="img_reinforcement" v-for="pic in squads[item].reinforcement"
+									 v-if="pic" v-bind:src="'media/toons/' + pic + '.png'">
+							</div>
+						</div>
+						<div v-if="squads[item].leader"
+							 v-for="item in selectedMission.preferredSquads">
+							<p class="text_subtitle">{{item}}</p>
+							<div>
+								<img class="img_leader"
+									 v-bind:src="'media/toons/' + squads[item].leader + '.png'">
+								<img class="img_toon"  v-for="pic in squads[item].toons"
+									 v-bind:src="'media/toons/' + pic + '.png'">
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</template>
+		<script src="js/vue.min.js"></script>
+		<script src="js/main.js"></script>
+		<script src="js/main_tw.js"></script>
+	</body>
+</html>
